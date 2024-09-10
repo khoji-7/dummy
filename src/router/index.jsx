@@ -4,7 +4,9 @@ import Home from "../pages/home/home";
 import LoginPage from "../pages/login/Login";
 import ProductsPage from "../pages/products/productsPage";
 import PostsPage from "../pages/posts/PostsPage";
-import PostDetailPage from "../components/posts/PostDetail";
+import DetailPage from "../components/details.jsx"
+import UserPage from "../pages/user/UserPage";
+
 
 const AppRouter = () => {
     const navigate = useNavigate();
@@ -24,7 +26,8 @@ const AppRouter = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/post" element={<PostsPage />} />
-            <Route path="/post/:postId" element={<PostDetailPage/>} />
+            <Route path="/users" element={<UserPage />} />
+            <Route path="/detail/:itemId/:itemType" element={<DetailPage />} />
         </Routes>
     );
 };

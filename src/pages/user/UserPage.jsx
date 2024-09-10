@@ -1,9 +1,8 @@
-import React from 'react'
-import PostsComp from '../../components/posts/postsComp'
+import React from 'react' 
+import UserComp from '../../components/userComp'
 import { useNavigate } from 'react-router';
 
-
-const PostsPage = () => {
+const UserPage = () => {
     let navigate = useNavigate();
     
     const logout = () => {
@@ -12,13 +11,12 @@ const PostsPage = () => {
     };
   return (
     <div>
-      <PostsComp/>
+      <UserComp/>
       <button onClick={logout}>
         Log out
       </button>
     </div>
-
   )
 }
 
-export default PostsPage
+export default UserPage

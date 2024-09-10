@@ -22,12 +22,16 @@ const Home = () => {
       </div>
 
       {/* NavLink orqali products sahifasiga yo'naltirish */}
-      <NavLink to="/products">
+      <NavLink to="/products" className="w-10  bg-cyan-500">
         Go to Products
       </NavLink>
       <br />
-      <NavLink to="/post">
+      <NavLink to="/post" className="w-10  bg-cyan-500">
         Go to post
+      </NavLink>
+      <br />
+      <NavLink to="/users" className="w-10  bg-cyan-500">
+            userr
       </NavLink>
     </div>
   );
