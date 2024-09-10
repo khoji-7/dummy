@@ -25,6 +25,7 @@ const Home = () => {
       <NavLink to="/products">
         Go to Products
       </NavLink>
+      <br />
       <NavLink to="/post">
         Go to post
       </NavLink>
