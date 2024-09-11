@@ -37,6 +37,12 @@ const Home = () => {
           >
             Go to Users
           </NavLink>
+          <NavLink 
+            to="/todos" 
+            className="block py-2 px-4 mb-2 rounded-lg hover:bg-gray-700 transition duration-300"
+          >
+            Go to todos
+          </NavLink>
         </nav>
         <div className="px-4 py-6">
           <button 

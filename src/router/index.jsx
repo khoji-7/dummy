@@ -4,8 +4,8 @@ import Home from "../pages/home/home";
 import LoginPage from "../pages/login/Login";
 import ProductsPage from "../pages/products/productsPage";
 import PostsPage from "../pages/posts/PostsPage";
-import DetailPage from "../components/details.jsx"
 import UserPage from "../pages/user/UserPage";
+import TodosPage from "../pages/todos/TodosPage";
 
 
 const AppRouter = () => {
@@ -27,7 +27,7 @@ const AppRouter = () => {
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/post" element={<PostsPage />} />
             <Route path="/users" element={<UserPage />} />
-            <Route path="/detail/:itemId/:itemType" element={<DetailPage />} />
+            <Route path="/todos" element={<TodosPage />} />
         </Routes>
     );
 };

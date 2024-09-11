@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import "react-toastify/dist/ReactToastify.css";
@@ -91,6 +91,7 @@ function LoginPage() {
                     Login
                 </button>
             </form>
+            <ToastContainer />
         </section>
     );
 }

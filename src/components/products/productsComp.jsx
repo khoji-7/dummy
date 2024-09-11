@@ -10,38 +10,41 @@ function ProductComp() {
     const [order, setOrder] = useState('asc');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [newProduct, setNewProduct] = useState({ title: '', price: '', description: '', category: '' });
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProducts = () => {
-            let url = 'https://dummyjson.com/products';
-            const params = new URLSearchParams();
+            const limit = 10;
+            const skip = (page - 1) * limit;
+            let url = `https://dummyjson.com/products?limit=${limit}&skip=${skip}&select=title,price,description,images`;
 
             if (searchQuery) {
                 url = `https://dummyjson.com/products/search?q=${searchQuery}`;
             } else if (selectedCategory) {
                 url = `https://dummyjson.com/products/category/${selectedCategory}`;
             } else {
-                if (sortBy) {
-                    params.append('sortBy', sortBy);
-                }
-                if (order) {
-                    params.append('order', order);
-                }
-                if (params.toString()) {
-                    url += (url.includes('?') ? '&' : '?') + params.toString();
-                }
+                const params = new URLSearchParams();
+                if (sortBy) params.append('sortBy', sortBy);
+                if (order) params.append('order', order);
+                if (params.toString()) url += (url.includes('?') ? '&' : '?') + params.toString();
             }
 
             fetch(url)
                 .then(res => res.json())
-                .then(data => setProducts(data.products || []))
+                .then(data => {
+                    setProducts(data.products || []);
+                    setTotalPages(Math.ceil(data.total / 10)); // Assuming total products available
+                })
                 .catch(error => console.error("Error fetching data:", error));
         };
 
         fetchProducts();
-    }, [searchQuery, sortBy, order, selectedCategory]);
+    }, [searchQuery, sortBy, order, selectedCategory, page]);
 
     useEffect(() => {
         fetch('https://dummyjson.com/products/category-list')
@@ -50,8 +53,9 @@ function ProductComp() {
             .catch(error => console.error("Error fetching categories:", error));
     }, []);
 
-    const handleProductClick = (productId) => {
-        navigate(`/detail/${productId}/product`);
+    const handleProductClick = (product) => {
+        setSelectedProduct(product);
+        setIsProductModalOpen(true);
     };
 
     const handleAddProduct = () => {
@@ -90,12 +94,18 @@ function ProductComp() {
         });
     };
 
+    const handlePageChange = (newPage) => {
+        if (newPage > 0 && newPage <= totalPages) {
+            setPage(newPage);
+        }
+    };
+
     return (
         <section className='max-w-full m-auto'>
             <main className='max-w-7xl m-auto flex flex-col'>
                 {/* Search input */}
                 <div className="p-4 flex flex-row justify-between sticky top-0 bg-stone-50">
-                <button
+                    <button
                         onClick={() => setIsModalOpen(true)}
                         className='bg-blue-500 text-white rounded-lg px-4 py-1 w-1/6'
                     >
@@ -109,47 +119,42 @@ function ProductComp() {
                         className='border border-gray-300 rounded-lg px-4 py-1 w-2/6'
                     />
                     <div className="w-2/6 flex flex-row justify-between">
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className='border border-gray-300 rounded-lg p-2 mr-2 '
-                    >   <option value="">Sort by</option>
-                        <option value="title">Title</option>
-                        <option value="price">Price</option>
-                        <option value="rating">Rating</option>
-                    </select>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className='border border-gray-300 rounded-lg p-2 mr-2'
+                        >
+                            <option value="">Sort by</option>
+                            <option value="title">Title</option>
+                            <option value="price">Price</option>
+                            <option value="rating">Rating</option>
+                        </select>
 
-                    <select
-                        value={order}
-                        onChange={(e) => setOrder(e.target.value)}
-                        className='border border-gray-300 rounded-lg p-2'
-                    >   <option value="">Order</option>
-                        <option value="asc">Ascending</option>
-                        <option value="desc">Descending</option>
-                    </select>
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className='border border-gray-300 rounded-lg p-2'
-                    >
-                        <option value="">Category</option>
-                        {categories.map(category => (
-                            <option key={category} value={category}>
-                                {category}
-                            </option>
-                        ))}
-                    </select>
+                        <select
+                            value={order}
+                            onChange={(e) => setOrder(e.target.value)}
+                            className='border border-gray-300 rounded-lg p-2'
+                        >
+                            <option value="">Order</option>
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className='border border-gray-300 rounded-lg p-2'
+                        >
+                            <option value="">Category</option>
+                            {categories.map(category => (
+                                <option key={category} value={category}>
+                                    {category}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
-                </div>
 
-                
-
-              
-              
-
-           
-                
-
+                {/* Add Product Modal */}
                 {isModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                         <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -204,13 +209,35 @@ function ProductComp() {
                     </div>
                 )}
 
+                {/* Product Details Modal */}
+                {isProductModalOpen && selectedProduct && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                            <h2 className="text-lg font-semibold mb-4">{selectedProduct.title}</h2>
+                            <img 
+                                src={selectedProduct.images[0]} // Assumes images is an array
+                                alt={selectedProduct.title}
+                                className="w-full h-48 object-cover mb-4 rounded-lg"
+                            />
+                            <p className="text-gray-600 mb-2">Price: ${selectedProduct.price}</p>
+                            <p className="text-gray-500 mb-4">{selectedProduct.description}</p>
+                            <button 
+                                onClick={() => setIsProductModalOpen(false)} 
+                                className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Product Grid */}
                 <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto'>
                     {products.map(product => (
                         <div
                             key={product.id}
                             className='product-card border border-gray-200 rounded-lg shadow-lg p-4 cursor-pointer'
-                            onClick={() => handleProductClick(product.id)}
+                            onClick={() => handleProductClick(product)}
                         >
                             <img 
                                 src={product.images[0]} // Assumes images is an array
@@ -231,6 +258,25 @@ function ProductComp() {
                             </button>
                         </div>
                     ))}
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="flex justify-between items-center mt-4">
+                    <button
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page === 1}
+                        className='bg-gray-500 text-white rounded-lg px-4 py-2'
+                    >
+                        Previous
+                    </button>
+                    <span>Page {page} of {totalPages}</span>
+                    <button
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page === totalPages}
+                        className='bg-gray-500 text-white rounded-lg px-4 py-2'
+                    >
+                        Next
+                    </button>
                 </div>
             </main>
         </section>
