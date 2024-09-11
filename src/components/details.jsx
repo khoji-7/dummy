@@ -1,10 +1,10 @@
-// DetailPage.js
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 function DetailPage() {
     const { itemId, itemType } = useParams(); // URL parametrlaridan itemId va itemType ni olish
     const [item, setItem] = useState(null);
+    const [userPosts, setUserPosts] = useState([]); // Foydalanuvchi postlari
 
     useEffect(() => {
         const fetchItem = async () => {
@@ -13,13 +13,23 @@ function DetailPage() {
                 url = `https://dummyjson.com/products/${itemId}`;
             } else if (itemType === 'post') {
                 url = `https://dummyjson.com/posts/${itemId}`;
-            } 
+            } else if (itemType === 'user') {
+                url = `https://dummyjson.com/users/${itemId}`;
+            }
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 setItem(data);
+
+                // Agar itemType 'user' bo'lsa, foydalanuvchining postlarini olish
+                if (itemType === 'user') {
+                    const postsResponse = await fetch(`https://dummyjson.com/users/${itemId}/posts`);
+                    const postsData = await postsResponse.json();
+                    setUserPosts(postsData.posts);
+                    console.log("Fetched user posts:", postsData.posts); // Konsolga chiqarish
+                }
             } catch (error) {
-                console.error("Error fetching item details:", error);
+                console.error("Item details olishda xato:", error);
             }
         };
 
@@ -59,6 +69,21 @@ function DetailPage() {
                             <p className='text-gray-600 mb-2'>{item.email}</p>
                             <p className='text-gray-500'>{item.phone}</p>
                             <p className='text-gray-500'>{item.address}</p>
+                            <div className='mt-6'>
+                                <h2 className='text-xl font-semibold mb-4'>Posts:</h2>
+                                {userPosts.length > 0 ? (
+                                    <ul>
+                                        {userPosts.map(post => (
+                                            <li key={post.id} className='mb-4'>
+                                                <h3 className='text-lg font-semibold'>{post.title}</h3>
+                                                <p className='text-gray-700'>{post.body}</p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p>No posts found for this user.</p>
+                                )}
+                            </div>
                         </>
                     ) : null}
                 </div>

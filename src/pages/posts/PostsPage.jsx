@@ -13,12 +13,7 @@ const PostsPage = () => {
   return (
     <div>
       <PostsComp/>
-      <button 
-            onClick={logout} 
-            className="w-36 bg-blue-500 text-white  font-semibold py-2 px-4 rounded-lg hover:bg-[#5B99C2] transition duration-300"
-          >
-            Log out
-          </button>
+      
     </div>
 
   )
