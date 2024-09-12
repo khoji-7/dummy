@@ -14,7 +14,7 @@ function PostsComp() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPosts, setTotalPosts] = useState(0);
     const [postsPerPage] = useState(10);
-    const [singlePost, setSinglePost] = useState(null); // Single post state
+    const [singlePost, setSinglePost] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,7 +35,6 @@ function PostsComp() {
                 params.append('order', order);
             }
 
-            // Pagination
             params.append('limit', postsPerPage);
             params.append('skip', (currentPage - 1) * postsPerPage);
             params.append('select', 'title,body,userId');
@@ -48,7 +47,7 @@ function PostsComp() {
                 .then(res => res.json())
                 .then(data => {
                     setPosts(data.posts || []);
-                    setTotalPosts(data.total || 0); // Assuming the API returns the total number of posts
+                    setTotalPosts(data.total || 0);
                 })
                 .catch(error => console.error("Error fetching posts:", error));
         };
@@ -80,28 +79,32 @@ function PostsComp() {
             });
     };
 
-    const handleAddPost = () => {
-        fetch('https://dummyjson.com/posts/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newPost),
-        })
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error('Failed to add post.');
-                }
-                return res.json();
-            })
-            .then(data => {
-                setPosts(prevPosts => [...prevPosts, data]); // Add new post to the list
-                setIsModalOpen(false); // Close the modal
-                setNewPost({ title: '', body: '', userId: 5 }); // Reset the form
-                toast.success("Post added successfully!"); // Show success toast
-            })
-            .catch(error => {
-                console.error("Error adding post:", error);
-                toast.error("Failed to add post."); // Show error toast
+    const handleAddPost = async () => {
+        if (!newPost.title || !newPost.body) {
+            toast.error("Please fill in all fields.");
+            return;
+        }
+
+        try {
+            const response = await fetch('https://dummyjson.com/posts/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newPost),
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to add post.');
+            }
+
+            const data = await response.json();
+            setPosts(prevPosts => [...prevPosts, data]);
+            setIsModalOpen(false);
+            setNewPost({ title: '', body: '', userId: 5 });
+            toast.success("Post added successfully!");
+        } catch (error) {
+            console.error("Error adding post:", error);
+            toast.error("Failed to add post.");
+        }
     };
 
     const handleDeletePost = (postId) => {
@@ -111,8 +114,8 @@ function PostsComp() {
             .then(res => res.json())
             .then(data => {
                 if (data.isDeleted) {
-                    setPosts(prevPosts => prevPosts.filter(post => post.id !== postId)); // Remove post from list
-                    toast.success(`Post deleted on ${data.deletedOn}`); // Show success toast
+                    setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+                    toast.success(`Post deleted on ${data.deletedOn}`);
                 } else {
                     toast.error("Failed to delete post.");
                 }
@@ -128,10 +131,8 @@ function PostsComp() {
         setIsModalOpen(false);
     };
 
-    // Calculate total pages
     const totalPages = Math.ceil(totalPosts / postsPerPage);
 
-    // Handle page change
     const handlePageChange = (newPage) => {
         if (newPage > 0 && newPage <= totalPages) {
             setCurrentPage(newPage);
@@ -197,7 +198,7 @@ function PostsComp() {
                             <p className='text-gray-600 mb-2'>{post.body}</p>
                             <button
                                 onClick={(e) => {
-                                    e.stopPropagation(); // Bu tugmani bosganda modal ochilmasligi uchun
+                                    e.stopPropagation();
                                     handleDeletePost(post.id);
                                 }}
                                 className="text-white ml-4 bg-red-500 border-none rounded-xl p-1.5"
@@ -207,38 +208,69 @@ function PostsComp() {
                         </div>
                     ))}
                 </div>
-                <div className="flex justify-between items-center mt-4">
+                <div className="flex justify-between items-center mt-4 w-96">
                     <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
-                        className='bg-gray-500 text-white rounded-lg px-4 py-2'
-                    >
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg">
                         Previous
                     </button>
                     <span>Page {currentPage} of {totalPages}</span>
                     <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
-                        className='bg-gray-500 text-white rounded-lg px-4 py-2'
-                    >
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg">
                         Next
                     </button>
                 </div>
 
-                {isModalOpen && singlePost && (
+                {isModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                            <h2 className="text-lg font-semibold mb-4">Post Details</h2>
-                            <p><strong>Title:</strong> {singlePost.title}</p>
-                            <p><strong>Body:</strong> {singlePost.body}</p>
-                            <div className="flex justify-end space-x-2 mt-4">
+                        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+                            <h2 className="text-xl font-semibold mb-4">Add New Post</h2>
+                            <input
+                                type="text"
+                                value={newPost.title}
+                                onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
+                                placeholder="Title"
+                                className="border border-gray-300 rounded-lg p-3 mb-4 w-full"
+                            />
+                            <textarea
+                                value={newPost.body}
+                                onChange={(e) => setNewPost(prev => ({ ...prev, body: e.target.value }))}
+                                placeholder="Body"
+                                className="border border-gray-300 rounded-lg p-3 mb-4 w-full"
+                            />
+                            <div className="flex justify-between items-center mt-4">
                                 <button
-                                    onClick={handleClosePostModal}
-                                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                                    onClick={handleAddPost}
+                                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition"
                                 >
-                                    Close
+                                    Add Post
+                                </button>
+                                <button
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="bg-gray-500 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-600 transition"
+                                >
+                                    Cancel
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {singlePost && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+                            <h2 className="text-xl font-semibold mb-4">Post Details</h2>
+                            <h3 className="text-lg font-semibold mb-2">{singlePost.title}</h3>
+                            <p className="mb-4">{singlePost.body}</p>
+                            <button
+                                onClick={handleClosePostModal}
+                                className="bg-gray-500 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-600 transition"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
                 )}

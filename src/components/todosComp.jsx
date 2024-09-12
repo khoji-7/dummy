@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const TodosComp = () => {
   const [todos, setTodos] = useState([]); // State to store all todos
@@ -10,7 +10,7 @@ const TodosComp = () => {
   const [newTodo, setNewTodo] = useState(''); // State to manage the new todo input
 
   // Fetch all todos
-  useEffect(() => {
+  const fetchTodos = useCallback(() => {
     fetch(`https://dummyjson.com/todos?limit=${limit}&skip=${skip}`)
       .then((res) => res.json())
       .then((data) => {
@@ -20,8 +20,12 @@ const TodosComp = () => {
       .catch((error) => console.error('Error fetching todos:', error));
   }, [limit, skip]);
 
+  useEffect(() => {
+    fetchTodos();
+  }, [fetchTodos]);
+
   // Fetch single todo by ID
-  const fetchSingleTodo = (id) => {
+  const fetchSingleTodo = useCallback((id) => {
     fetch(`https://dummyjson.com/todos/${id}`)
       .then((res) => res.json())
       .then((data) => {
@@ -29,10 +33,10 @@ const TodosComp = () => {
         setIsModalOpen(true); // Open the modal after fetching todo details
       })
       .catch((error) => console.error('Error fetching single todo:', error));
-  };
+  }, []);
 
   // Fetch random todo
-  const fetchRandomTodo = () => {
+  const fetchRandomTodo = useCallback(() => {
     fetch('https://dummyjson.com/todos/random')
       .then((res) => res.json())
       .then((data) => {
@@ -40,7 +44,7 @@ const TodosComp = () => {
         setIsModalOpen(true); // Open modal to display random todo
       })
       .catch((error) => console.error('Error fetching random todo:', error));
-  };
+  }, []);
 
   // Close modal function
   const closeModal = () => {
@@ -49,7 +53,11 @@ const TodosComp = () => {
   };
 
   // Add a new todo
-  const addNewTodo = () => {
+  const addNewTodo = useCallback(() => {
+    if (!newTodo.trim()) {
+      alert('Please enter a todo.');
+      return;
+    }
     fetch('https://dummyjson.com/todos/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -66,10 +74,10 @@ const TodosComp = () => {
         setNewTodo(''); // Clear the input after adding the todo
       })
       .catch((error) => console.error('Error adding new todo:', error));
-  };
+  }, [newTodo]);
 
   // Update a todo (toggle completed status)
-  const updateTodoStatus = (id, currentStatus) => {
+  const updateTodoStatus = useCallback((id, currentStatus) => {
     fetch(`https://dummyjson.com/todos/${id}`, {
       method: 'PUT', // You can also use PATCH
       headers: { 'Content-Type': 'application/json' },
@@ -87,21 +95,20 @@ const TodosComp = () => {
         );
       })
       .catch((error) => console.error('Error updating todo:', error));
-  };
+  }, []);
 
   // Delete a todo
-  const deleteTodo = (id) => {
+  const deleteTodo = useCallback((id) => {
     fetch(`https://dummyjson.com/todos/${id}`, {
       method: 'DELETE',
     })
       .then((res) => res.json())
-      .then((deletedTodo) => {
-        console.log('Deleted Todo:', deletedTodo);
+      .then(() => {
         // Remove the deleted todo from the local state
         setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
       })
       .catch((error) => console.error('Error deleting todo:', error));
-  };
+  }, []);
 
   // Calculate total pages
   const totalPages = Math.ceil(totalTodos / limit);
@@ -116,33 +123,33 @@ const TodosComp = () => {
   return (
     <section className='w-full mx-auto'>
       <main className='max-w-7xl p-4 mx-auto'>
-        <h1 className='text-2xl font-bold mb-4'>Todo List</h1>
+        <h1 className='text-3xl font-bold mb-4 text-blue-700'>Todo List</h1>
 
         {/* Input for new todo */}
-        <div className='flex mb-4 flex-row justify-between sticky top-0 bg-stone-50 p-4 rounded-lg'>
+        <div className='flex mb-4 flex-row justify-between sticky top-0 bg-stone-50 p-4 rounded-lg shadow-md'>
           <input
             type='text'
             value={newTodo}
             onChange={(e) => setNewTodo(e.target.value)}
             placeholder='Add new todo...'
-            className='border border-gray-300 p-2 rounded-lg mr-2 w-3/6'
+            className='border border-gray-300 p-2 rounded-lg mr-2 w-3/6 focus:outline-none focus:ring-2 focus:ring-blue-500'
           />
           <button
             onClick={addNewTodo}
-            className='bg-blue-500 text-white px-4 py-2 rounded-lg w-1/5'
+            className='bg-blue-500 text-white px-4 py-2 rounded-lg transition duration-300 hover:bg-blue-600'
           >
             Add Todo
           </button>
           <button
             onClick={fetchRandomTodo}
-            className='px-4 py-2 bg-green-500 text-white rounded-lg w-1/5'
+            className='bg-green-500 text-white px-4 py-2 rounded-lg transition duration-300 hover:bg-green-600'
           >
             Get Random Todo
           </button>
         </div>
 
         {/* Table of todos */}
-        <table className='table-auto w-full border-collapse'>
+        <table className='table-auto w-full border-collapse mt-4'>
           <thead>
             <tr className='bg-gray-200'>
               <th className='border p-2'>ID</th>
@@ -155,7 +162,7 @@ const TodosComp = () => {
             {todos.map((todo) => (
               <tr
                 key={todo.id}
-                className={`${todo.completed ? 'bg-green-100' : ''}`}
+                className={`transition-transform duration-300 ${todo.completed ? 'bg-green-100' : 'hover:bg-gray-100'}`}
               >
                 <td className='border p-2'>{todo.id}</td>
                 <td className='border p-2'>{todo.todo}</td>
@@ -168,15 +175,15 @@ const TodosComp = () => {
                     className='mr-2'
                   />
                 </td>
-                <td className='border p-2 flex flex-row gap-4'>
+                <td className='border p-2 flex gap-2'>
                   <button
-                    className='text-white bg-blue-500 px-3 py-2 border-none rounded-xl'
+                    className='text-white bg-blue-500 px-3 py-1 rounded-lg transition duration-300 hover:bg-blue-600'
                     onClick={() => fetchSingleTodo(todo.id)}
                   >
                     View Details
                   </button>
                   <button
-                    className='text-white bg-red-500 px-3 py-2 border-none rounded-xl'
+                    className='text-white bg-red-500 px-3 py-1 rounded-lg transition duration-300 hover:bg-red-600'
                     onClick={() => deleteTodo(todo.id)}
                   >
                     Delete
@@ -188,11 +195,11 @@ const TodosComp = () => {
         </table>
 
         {/* Pagination buttons */}
-        <div className='flex justify-between mt-4'>
+        <div className='flex justify-between mt-4 w-96 items-center'>
           <button
-            onClick={() => handlePageChange(Math.max(1, (skip / limit) + 1) - 1)}
+            onClick={() => handlePageChange(Math.max(1, Math.floor(skip / limit)))}
             disabled={skip === 0}
-            className={`px-4 py-2 bg-blue-500 text-white rounded-lg ${
+            className={`px-4 py-2 bg-blue-500 text-white rounded-lg transition duration-300 hover:bg-blue-600 ${
               skip === 0 ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
@@ -200,9 +207,9 @@ const TodosComp = () => {
           </button>
           <span>Page {Math.floor(skip / limit) + 1} of {totalPages}</span>
           <button
-            onClick={() => handlePageChange(Math.min(totalPages, (skip / limit) + 1) + 1)}
+            onClick={() => handlePageChange(Math.min(totalPages, Math.floor(skip / limit) + 2))}
             disabled={skip + limit >= totalTodos}
-            className={`px-4 py-2 bg-blue-500 text-white rounded-lg ${
+            className={`px-4 py-2 bg-blue-500 text-white rounded-lg transition duration-300 hover:bg-blue-600 ${
               skip + limit >= totalTodos ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
@@ -213,15 +220,15 @@ const TodosComp = () => {
 
       {/* Modal for single todo details */}
       {isModalOpen && singleTodo && (
-        <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50'>
-          <div className='bg-white p-6 rounded-lg w-1/2'>
+        <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-60'>
+          <div className='bg-white p-6 rounded-lg shadow-lg w-1/2'>
             <h2 className='text-xl font-semibold mb-4'>Todo Details</h2>
             <p><strong>ID:</strong> {singleTodo.id}</p>
             <p><strong>Title:</strong> {singleTodo.todo}</p>
             <p><strong>Status:</strong> {singleTodo.completed ? 'Completed' : 'Not Completed'}</p>
             <button
               onClick={closeModal}
-              className='mt-4 bg-red-500 text-white px-4 py-2 rounded-lg'
+              className='mt-4 bg-red-500 text-white px-4 py-2 rounded-lg transition duration-300 hover:bg-red-600'
             >
               Close
             </button>

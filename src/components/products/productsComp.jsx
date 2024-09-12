@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 function ProductComp() {
@@ -11,11 +10,11 @@ function ProductComp() {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-    const [newProduct, setNewProduct] = useState({ title: '', price: '', description: '', category: '' });
+    const [newProduct, setNewProduct] = useState({ title: '', price: '', description: '', category: '', brand: '' });
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProducts = () => {
@@ -24,9 +23,9 @@ function ProductComp() {
             let url = `https://dummyjson.com/products?limit=${limit}&skip=${skip}&select=title,price,description,images`;
 
             if (searchQuery) {
-                url = `https://dummyjson.com/products/search?q=${searchQuery}`;
+                url = `https://dummyjson.com/products/search?q=${searchQuery}&limit=${limit}&skip=${skip}`;
             } else if (selectedCategory) {
-                url = `https://dummyjson.com/products/category/${selectedCategory}`;
+                url = `https://dummyjson.com/products/category/${selectedCategory}?limit=${limit}&skip=${skip}`;
             } else {
                 const params = new URLSearchParams();
                 if (sortBy) params.append('sortBy', sortBy);
@@ -38,7 +37,7 @@ function ProductComp() {
                 .then(res => res.json())
                 .then(data => {
                     setProducts(data.products || []);
-                    setTotalPages(Math.ceil(data.total / 10)); // Assuming total products available
+                    setTotalPages(Math.ceil(data.total / 10));
                 })
                 .catch(error => console.error("Error fetching data:", error));
         };
@@ -55,10 +54,20 @@ function ProductComp() {
 
     const handleProductClick = (product) => {
         setSelectedProduct(product);
+        setSelectedImage(product.images[0]);
         setIsProductModalOpen(true);
     };
 
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
+    };
+
     const handleAddProduct = () => {
+        if (!newProduct.title || !newProduct.price || !newProduct.description || !newProduct.category || !newProduct.brand) {
+            toast.error('All fields are required.');
+            return;
+        }
+
         fetch('https://dummyjson.com/products/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -67,8 +76,9 @@ function ProductComp() {
         .then(res => res.json())
         .then(data => {
             setProducts(prevProducts => [data, ...prevProducts]);
-            setNewProduct({ title: '', price: '', description: '', category: '' });
+            setNewProduct({ title: '', price: '', description: '', category: '', brand: '' });
             setIsModalOpen(false);
+
             toast.success('Product added successfully!');
         })
         .catch(error => {
@@ -101,149 +111,70 @@ function ProductComp() {
     };
 
     return (
-        <section className='max-w-full m-auto'>
-            <main className='max-w-7xl m-auto flex flex-col'>
-                {/* Search input */}
-                <div className="p-4 flex flex-row justify-between sticky top-0 bg-stone-50">
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className='bg-blue-500 text-white rounded-lg px-4 py-1 w-1/6'
+        <section className='max-w-7xl mx-auto p-6'>
+            <div className="flex justify-between items-center mb-6 bg-white shadow-md rounded-lg p-4">
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className='bg-blue-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-blue-700 transition'
+                >
+                    Add Product
+                </button>
+                <input 
+                    type="text" 
+                    value={searchQuery} 
+                    onChange={(e) => setSearchQuery(e.target.value)} 
+                    placeholder="Search products..." 
+                    className='border border-gray-300 rounded-lg px-4 py-2 w-2/5'
+                />
+                <div className="flex space-x-4">
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className='border border-gray-300 rounded-lg p-2'
                     >
-                        Add Product
-                    </button>  
-                    <input 
-                        type="text" 
-                        value={searchQuery} 
-                        onChange={(e) => setSearchQuery(e.target.value)} 
-                        placeholder="Search products..." 
-                        className='border border-gray-300 rounded-lg px-4 py-1 w-2/6'
-                    />
-                    <div className="w-2/6 flex flex-row justify-between">
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className='border border-gray-300 rounded-lg p-2 mr-2'
-                        >
-                            <option value="">Sort by</option>
-                            <option value="title">Title</option>
-                            <option value="price">Price</option>
-                            <option value="rating">Rating</option>
-                        </select>
-
-                        <select
-                            value={order}
-                            onChange={(e) => setOrder(e.target.value)}
-                            className='border border-gray-300 rounded-lg p-2'
-                        >
-                            <option value="">Order</option>
-                            <option value="asc">Ascending</option>
-                            <option value="desc">Descending</option>
-                        </select>
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className='border border-gray-300 rounded-lg p-2'
-                        >
-                            <option value="">Category</option>
-                            {categories.map(category => (
-                                <option key={category} value={category}>
-                                    {category}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                        <option value="">Sort by</option>
+                        <option value="title">Title</option>
+                        <option value="price">Price</option>
+                        <option value="rating">Rating</option>
+                    </select>
+                    <select
+                        value={order}
+                        onChange={(e) => setOrder(e.target.value)}
+                        className='border border-gray-300 rounded-lg p-2'
+                    >
+                        <option value="">Order</option>
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                    </select>
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className='border border-gray-300 rounded-lg p-2'
+                    >
+                        <option value="">Category</option>
+                        {categories.map(category => (
+                            <option key={category} value={category}>
+                                {category}
+                            </option>
+                        ))}
+                    </select>
                 </div>
+            </div>
 
-                {/* Add Product Modal */}
-                {isModalOpen && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                            <h2 className="text-lg font-semibold mb-4">Add New Product</h2>
-                            <input
-                                type="text"
-                                placeholder="Title"
-                                value={newProduct.title}
-                                onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })}
-                                className="border border-gray-300 rounded-lg p-2 w-full mb-2"
-                            />
-                            <input
-                                type="number"
-                                placeholder="Price"
-                                value={newProduct.price}
-                                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                                className="border border-gray-300 rounded-lg p-2 w-full mb-2"
-                            />
-                            <textarea
-                                placeholder="Description"
-                                value={newProduct.description}
-                                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                                className="border border-gray-300 rounded-lg p-2 w-full mb-2"
-                            />
-                            <select
-                                value={newProduct.category}
-                                onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                                className="border border-gray-300 rounded-lg p-2 w-full mb-2"
-                            >
-                                <option value="">Select Category</option>
-                                {categories.map(category => (
-                                    <option key={category} value={category}>
-                                        {category}
-                                    </option>
-                                ))}
-                            </select>
-                            <div className="flex justify-end space-x-2">
-                                <button 
-                                    onClick={() => setIsModalOpen(false)} 
-                                    className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                                >
-                                    Cancel
-                                </button>
-                                <button 
-                                    onClick={handleAddProduct} 
-                                    className="bg-blue-500 text-white py-2 px-4 rounded-lg"
-                                >
-                                    Add Product
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Product Details Modal */}
-                {isProductModalOpen && selectedProduct && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                            <h2 className="text-lg font-semibold mb-4">{selectedProduct.title}</h2>
-                            <img 
-                                src={selectedProduct.images[0]} // Assumes images is an array
-                                alt={selectedProduct.title}
-                                className="w-full h-48 object-cover mb-4 rounded-lg"
-                            />
-                            <p className="text-gray-600 mb-2">Price: ${selectedProduct.price}</p>
-                            <p className="text-gray-500 mb-4">{selectedProduct.description}</p>
-                            <button 
-                                onClick={() => setIsProductModalOpen(false)} 
-                                className="bg-gray-500 text-white py-2 px-4 rounded-lg"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Product Grid */}
-                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto'>
-                    {products.map(product => (
-                        <div
-                            key={product.id}
-                            className='product-card border border-gray-200 rounded-lg shadow-lg p-4 cursor-pointer'
-                            onClick={() => handleProductClick(product)}
-                        >
-                            <img 
-                                src={product.images[0]} // Assumes images is an array
-                                alt={product.title} 
-                                className='w-auto h-56 object-cover rounded-lg mb-4 mx-auto'
-                            />
+            {/* Product Grid */}
+            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+                {products.map(product => (
+                    <div
+                        key={product.id}
+                        className='bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transition-transform transform hover:scale-105'
+                        onClick={() => handleProductClick(product)}
+                    >
+                        <img 
+                            src={product.images[0]} // Assumes images is an array
+                            alt={product.title} 
+                            className='w-auto items-center h-48 object-cover'
+                        />
+                        <div className='p-4'>
                             <h2 className='text-lg font-semibold mb-2'>{product.title}</h2>
                             <p className='text-gray-600 mb-2'>${product.price}</p>
                             <p className='text-gray-500'>{product.description}</p>
@@ -252,33 +183,128 @@ function ProductComp() {
                                     e.stopPropagation(); // Prevents triggering product click event
                                     handleDeleteProduct(product.id);
                                 }}
-                                className='bg-red-500 text-white rounded-lg px-4 py-2 mt-2'
+                                className='bg-red-600 text-white rounded-lg px-4 py-2 mt-2 w-full'
                             >
                                 Delete
                             </button>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ))}
+            </div>
 
-                {/* Pagination Controls */}
-                <div className="flex justify-between items-center mt-4">
-                    <button
-                        onClick={() => handlePageChange(page - 1)}
-                        disabled={page === 1}
-                        className='bg-gray-500 text-white rounded-lg px-4 py-2'
-                    >
-                        Previous
-                    </button>
-                    <span>Page {page} of {totalPages}</span>
-                    <button
-                        onClick={() => handlePageChange(page + 1)}
-                        disabled={page === totalPages}
-                        className='bg-gray-500 text-white rounded-lg px-4 py-2'
-                    >
-                        Next
-                    </button>
+            {/* Pagination Controls */}
+            <div className="flex justify-between items-center mt-6">
+                <button
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                    Previous
+                </button>
+                <span className="text-lg">Page {page} of {totalPages}</span>
+                <button
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                    Next
+                </button>
+            </div>
+
+            {/* Modals */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <form className="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <h2 className="text-lg font-semibold mb-4">Add New Product</h2>
+                        <input
+                            type="text"
+                            placeholder="Title"
+                            value={newProduct.title}
+                            onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })}
+                            className="border border-gray-300 rounded-lg p-2 w-full mb-2"
+                            required
+                        />
+                        <input
+                            type="number"
+                            placeholder="Price"
+                            value={newProduct.price}
+                            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                            className="border border-gray-300 rounded-lg p-2 w-full mb-2"
+                            required
+                        />
+                        <textarea
+                            placeholder="Description"
+                            value={newProduct.description}
+                            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                            className="border border-gray-300 rounded-lg p-2 w-full mb-2"
+                            required
+                        />
+                        <select
+                            value={newProduct.category}
+                            onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                            className="border border-gray-300 rounded-lg p-2 w-full mb-2"
+                            required
+                        >
+                            <option value="">Select Category</option>
+                            {categories.map(category => (
+                                <option key={category} value={category}>
+                                    {category}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="flex justify-end space-x-2 mt-4">
+                            <button 
+                                type="button" // Prevent form submission
+                                onClick={() => setIsModalOpen(false)} 
+                                className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="button" // Prevent form submission
+                                onClick={handleAddProduct} 
+                                className="bg-blue-600 text-white py-2 px-4 rounded-lg"
+                            >
+                                Add Product
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </main>
+            )}
+
+            {isProductModalOpen && selectedProduct && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 mx-auto">
+                        <h2 className="text-2xl font-semibold mb-4 text-blue-600">{selectedProduct.title}</h2>
+                        <div className='flex'>
+                            <img
+                                src={selectedImage}
+                                alt={selectedProduct.title}
+                                className="w-full h-96 object-contain mb-4 rounded-lg"
+                            />
+                            <div className="flex flex-col gap-2 w-44 ml-4">
+                                {selectedProduct.images.map((image, index) => (
+                                    <img
+                                        key={index}
+                                        src={image}
+                                        alt={`Thumbnail ${index}`}
+                                        className="w-20 h-20 object-cover cursor-pointer rounded-md border border-gray-300"
+                                        onClick={() => handleImageClick(image)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <p className="text-gray-600 mb-2">Price: ${selectedProduct.price}</p>
+                        <p className="text-gray-500 mb-4">{selectedProduct.description}</p>
+                        <button 
+                            onClick={() => setIsProductModalOpen(false)} 
+                            className="bg-gray-500 text-white py-2 px-4 rounded-lg"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }
