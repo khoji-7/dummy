@@ -121,12 +121,12 @@ const TodosComp = () => {
   };
 
   return (
-    <section className='w-full mx-auto'>
-      <main className='max-w-7xl p-4 mx-auto'>
+    <section className='max-w-full mx-auto p-4'>
+      <main className='max-w-7xl mx-auto p-6 bg-gray-50 rounded-lg shadow-md'>
         <h1 className='text-3xl font-bold mb-4 text-blue-700'>Todo List</h1>
 
         {/* Input for new todo */}
-        <div className='flex mb-4 flex-row justify-between sticky top-0 bg-stone-50 p-4 rounded-lg shadow-md'>
+        <div className='flex mb-4 flex-row justify-between sticky top-0 bg-white p-4 rounded-lg shadow-md'>
           <input
             type='text'
             value={newTodo}

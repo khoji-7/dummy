@@ -14,7 +14,7 @@ const AppRouter = () => {
 
     useEffect(() => {
         if (token) {
-            navigate("/home");
+            // navigate("/home");
         } else {
             navigate("/login");
         }

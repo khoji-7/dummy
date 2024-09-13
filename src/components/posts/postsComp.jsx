@@ -140,8 +140,8 @@ function PostsComp() {
     };
 
     return (
-        <section className='max-w-full m-auto'>
-            <main className='max-w-7xl m-auto flex flex-col'>
+        <section className='max-w-full m-auto p-6'>
+            <main className='max-w-7xl m-auto p-6 bg-gray-50 rounded-xl flex flex-col'>
                 <div className='p-4 flex flex-row justify-between sticky top-2 bg-stone-50'>
                     <button
                         onClick={() => setIsModalOpen(true)}
@@ -187,7 +187,7 @@ function PostsComp() {
                         </select>
                     </div>
                 </div>
-                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5'>
                     {posts.map(post => (
                         <div
                             key={post.id}
@@ -260,8 +260,8 @@ function PostsComp() {
                 )}
 
                 {singlePost && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+                    <div className="fixed inset-0  flex justify-center items-center">
+                        <div className="bg-white p-8 rounded-lg w-full max-w-lg">
                             <h2 className="text-xl font-semibold mb-4">Post Details</h2>
                             <h3 className="text-lg font-semibold mb-2">{singlePost.title}</h3>
                             <p className="mb-4">{singlePost.body}</p>

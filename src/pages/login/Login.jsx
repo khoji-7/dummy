@@ -41,8 +41,8 @@ function LoginPage() {
                 localStorage.setItem("accessToken", elem.token); // accessToken saqlash
                 if (elem.refreshToken) {
                     localStorage.setItem("refreshToken", elem.refreshToken);
+                    navigate("/home");
                 }
-                navigate("/home");
             } else {
                 toast.error("Login failed. Check your credentials.");
             }

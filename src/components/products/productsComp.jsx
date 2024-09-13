@@ -172,7 +172,7 @@ function ProductComp() {
                         <img 
                             src={product.images[0]} // Assumes images is an array
                             alt={product.title} 
-                            className='w-auto items-center h-48 object-cover'
+                            className='w-auto  mx-auto h-48 object-cover'
                         />
                         <div className='p-4'>
                             <h2 className='text-lg font-semibold mb-2'>{product.title}</h2>
@@ -183,7 +183,7 @@ function ProductComp() {
                                     e.stopPropagation(); // Prevents triggering product click event
                                     handleDeleteProduct(product.id);
                                 }}
-                                className='bg-red-600 text-white rounded-lg px-4 py-2 mt-2 w-full'
+                                className='bg-red-600 text-white rounded-lg px-4 py-2 mt-2 w-full '
                             >
                                 Delete
                             </button>
@@ -310,3 +310,5 @@ function ProductComp() {
 }
 
 export default ProductComp;
+
+
