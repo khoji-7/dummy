@@ -14,7 +14,7 @@ const AppRouter = () => {
 
     useEffect(() => {
         if (token && location.pathname === "/login") {
-            navigate("/home"); 
+            navigate("/"); 
         } else if (!token && location.pathname !== "/login") {
             navigate("/login"); 
         }
