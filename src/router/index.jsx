@@ -20,13 +20,7 @@ const AppRouter = () => {
         }
     }, [token, location.pathname, navigate]); 
 
-    // useEffect(()=>{
-    //     if(token){
-    //         navigate("/home");
-    //     }else{
-    //         navigate("/login");
-    //     }
-    // }, [])
+    
     return (
         <Routes>
             <Route path="/home" element={<Home />} />
