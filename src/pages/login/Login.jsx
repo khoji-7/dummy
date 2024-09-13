@@ -42,7 +42,7 @@ function LoginPage() {
                 if (elem.refreshToken) {
                     localStorage.setItem("refreshToken", elem.refreshToken);
                 }
-                navigate("/home");
+                navigate("/");
             } else {
                 toast.error("Login failed. Check your credentials.");
             }
