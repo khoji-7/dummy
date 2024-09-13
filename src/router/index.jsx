@@ -13,14 +13,12 @@ const AppRouter = () => {
     const token = localStorage.getItem("accessToken");
 
     useEffect(() => {
-        if (!token && location.pathname !== "/login") {
-            navigate("/login");
+        if (token && location.pathname === "/login") {
+            navigate("/home"); 
+        } else if (!token && location.pathname !== "/login") {
+            navigate("/login"); 
         }
-        else if (token && location.pathname === "/login") {
-            navigate("/home");
-        }
-    }, [token, location.pathname, navigate]);
-
+    }, [token, location.pathname, navigate]); 
     return (
         <Routes>
             <Route path="/home" element={<Home />} />
