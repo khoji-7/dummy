@@ -65,7 +65,7 @@ function LoginPage() {
                     required
                     minLength={3}
                     className="max-w-xs border-solid border-2 rounded-xl border-cyan-900 px-3 py-1 sm:max-w-full sm:w-full"
-                    placeholder="Username"
+                    placeholder="Username emilys"
                 />
                 <div className="relative w-full sm:max-w-full">
                     <input
@@ -74,7 +74,7 @@ function LoginPage() {
                         required
                         minLength={3}
                         className="max-w-xs border-solid border-2 rounded-xl border-cyan-900 px-3 py-1 sm:max-w-full sm:w-full"
-                        placeholder="Password"
+                        placeholder="Password emilyspass"
                     />
                     <button
                         type="button"

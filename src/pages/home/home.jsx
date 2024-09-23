@@ -7,7 +7,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("tokenbek"); // LocalStorage-dan tokenni o'chirish
+    localStorage.removeItem("accessToken"); // Token nomini to'g'ri o'chirish
     toast.success("Logged out successfully!"); // Xabar ko'rsatish
     navigate("/login"); // Login sahifasiga o'tish
   };

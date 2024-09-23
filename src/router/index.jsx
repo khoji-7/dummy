@@ -13,20 +13,24 @@ const AppRouter = () => {
     const token = localStorage.getItem("accessToken");
 
     useEffect(() => {
-        if (token && location.pathname === "/login") {
-            navigate("/"); 
-        } else if (!token && location.pathname !== "/login") {
-            navigate("/login"); 
-        }
-    }, [token, location.pathname, navigate]); 
+        const checkAuth = () => {
+            if (!token && location.pathname !== "/login") {
+                navigate("/login"); 
+            }
+            else if (token && location.pathname === "/login") {
+                navigate("/"); 
+            } 
+        };
 
-    
+        checkAuth();
+    }, [token, location.pathname, navigate]);
+
     return (
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/products" element={<ProductsPage />} />
-            <Route path="/post" element={<PostsPage />} />
+            <Route path="/posts" element={<PostsPage />} />
             <Route path="/users" element={<UserPage />} />
             <Route path="/todos" element={<TodosPage />} />
         </Routes>
