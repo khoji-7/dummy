@@ -12,18 +12,18 @@ const AppRouter = () => {
     const location = useLocation();
     const token = localStorage.getItem("accessToken");
 
-    useEffect(() => {
-        const checkAuth = () => {
-            if (!token && location.pathname !== "/login") {
-                navigate("/login"); 
-            }
-            else if (token && location.pathname === "/login") {
-                navigate("/"); 
-            } 
-        };
+    // useEffect(() => {
+    //     // const checkAuth = () => {
+    //     //     if (!token && location.pathname !== "/login") {
+    //     //         navigate("/login"); 
+    //     //     }
+    //     //     else if (token && location.pathname === "/login") {
+    //     //         navigate("/"); 
+    //     //     } 
+    //     // };
 
-        checkAuth();
-    }, [token, location.pathname, navigate]);
+    //     // checkAuth();
+    // }, [token, location.pathname, navigate]);
 
     return (
         <Routes>
