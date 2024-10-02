@@ -126,7 +126,7 @@ function ProductComp() {
         placeholder="Search products..." 
         className='border border-gray-300 rounded-lg px-4 py-2 w-full sm:w-2/5'
     />
-    <div className="flex space-x-4 w-full sm:w-auto sm:flex-row flex-col sm:space-x-4 space-y-4 sm:space-y-0">
+    <div className="flex  w-full sm:w-auto sm:flex-row flex-col sm:space-x-4 space-y-4 sm:space-y-0">
         <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -149,7 +149,7 @@ function ProductComp() {
         <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className='border border-gray-300 rounded-lg p-2 w-full sm:w-auto'
+            className='border border-gray-300 rounded-lg p-2  w-full sm:w-auto'
         >
             <option value="">Category</option>
             {categories.map(category => (
