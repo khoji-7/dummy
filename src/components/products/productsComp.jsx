@@ -112,54 +112,55 @@ function ProductComp() {
 
     return (
         <section className='max-w-7xl mx-auto p-6'>
-            <div className="flex justify-between items-center mb-6 bg-white shadow-md rounded-lg p-4">
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className='bg-blue-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-blue-700 transition'
-                >
-                    Add Product
-                </button>
-                <input 
-                    type="text" 
-                    value={searchQuery} 
-                    onChange={(e) => setSearchQuery(e.target.value)} 
-                    placeholder="Search products..." 
-                    className='border border-gray-300 rounded-lg px-4 py-2 w-2/5'
-                />
-                <div className="flex space-x-4">
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className='border border-gray-300 rounded-lg p-2'
-                    >
-                        <option value="">Sort by</option>
-                        <option value="title">Title</option>
-                        <option value="price">Price</option>
-                        <option value="rating">Rating</option>
-                    </select>
-                    <select
-                        value={order}
-                        onChange={(e) => setOrder(e.target.value)}
-                        className='border border-gray-300 rounded-lg p-2'
-                    >
-                        <option value="">Order</option>
-                        <option value="asc">Ascending</option>
-                        <option value="desc">Descending</option>
-                    </select>
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className='border border-gray-300 rounded-lg p-2'
-                    >
-                        <option value="">Category</option>
-                        {categories.map(category => (
-                            <option key={category} value={category}>
-                                {category}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            </div>
+            <div className="grid gap-4 sm:grid-cols-3 grid-cols-1 justify-between items-center mb-6 bg-white shadow-md rounded-lg p-4">
+    <button
+        onClick={() => setIsModalOpen(true)}
+        className='bg-blue-600 w-full sm:w-[200px] text-white rounded-lg px-6 py-2 font-semibold hover:bg-blue-700 transition'
+    >
+        Add Product
+    </button>
+    <input 
+        type="text" 
+        value={searchQuery} 
+        onChange={(e) => setSearchQuery(e.target.value)} 
+        placeholder="Search products..." 
+        className='border border-gray-300 rounded-lg px-4 py-2 w-full sm:w-2/5'
+    />
+    <div className="flex space-x-4 w-full sm:w-auto sm:flex-row flex-col sm:space-x-4 space-y-4 sm:space-y-0">
+        <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className='border border-gray-300 rounded-lg p-2 w-full sm:w-auto'
+        >
+            <option value="">Sort by</option>
+            <option value="title">Title</option>
+            <option value="price">Price</option>
+            <option value="rating">Rating</option>
+        </select>
+        <select
+            value={order}
+            onChange={(e) => setOrder(e.target.value)}
+            className='border border-gray-300 rounded-lg p-2 w-full sm:w-auto'
+        >
+            <option value="">Order</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
+        <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className='border border-gray-300 rounded-lg p-2 w-full sm:w-auto'
+        >
+            <option value="">Category</option>
+            {categories.map(category => (
+                <option key={category} value={category}>
+                    {category}
+                </option>
+            ))}
+        </select>
+    </div>
+</div>
+
 
             {/* Product Grid */}
             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
